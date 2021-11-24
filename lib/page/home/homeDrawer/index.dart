@@ -175,6 +175,21 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   title: '口袋彩铃',
                 )
               ],
+            ),
+            Container(
+              margin: EdgeInsets.only(top: rw(20)),
+              padding: EdgeInsets.symmetric(vertical: rw(12)),
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(14)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "退出登录/关闭",
+                    style: TextStyle(color: Colors.red, fontSize: sp(16)),
+                  )
+                ],
+              ),
             )
           ])),
     );

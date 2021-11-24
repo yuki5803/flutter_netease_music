@@ -5,20 +5,20 @@ import 'package:flutter_demo/utils/index.dart';
 
 class MyBottomSheet extends StatefulWidget {
   final List<MusicPlayList> musicPlayList;
-  MyBottomSheet({Key key, this.musicPlayList});
+  Function onClick;
+  String activeTitle;
+  MyBottomSheet({Key key, this.musicPlayList, this.onClick, this.activeTitle});
   @override
   _MyBottomSheetState createState() => _MyBottomSheetState();
 }
 
 class _MyBottomSheetState extends State<MyBottomSheet> {
-  String activeTitle;
-
   @override
   void initState() {
     super.initState();
-    setState(() {
-      activeTitle = widget.musicPlayList[0].title;
-    });
+    // setState(() {
+    //   widget.activeTitle = widget.musicPlayList[0].title;
+    // });
   }
 
   @override
@@ -72,15 +72,19 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
           physics: BouncingScrollPhysics(),
           shrinkWrap: true,
           children: widget.musicPlayList
-              .map((renderList) => InkWell(
+              .asMap()
+              .keys
+              .map((index) => InkWell(
                   onTap: () {
                     setState(() {
-                      activeTitle = renderList.title;
+                      widget.activeTitle = widget.musicPlayList[index].title;
                     });
+                    widget.onClick(widget.musicPlayList[index], index);
                   },
                   child: AnimatedContainer(
                       duration: Duration(milliseconds: 100),
-                      color: renderList.title == activeTitle
+                      color: widget.musicPlayList[index].title ==
+                              widget.activeTitle
                           ? Color(0x64e5e5e5)
                           : Colors.white,
                       child: Container(
@@ -91,14 +95,14 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
                         child: Row(
                           children: [
                             Text(
-                              renderList.title,
+                              widget.musicPlayList[index].title,
                               style: TextStyle(fontSize: sp(16)),
                             ),
                             Container(
                                 margin: EdgeInsets.fromLTRB(rw(5), 0, rw(5), 0),
-                                child: renderList.tag),
+                                child: widget.musicPlayList[index].tag),
                             Text(
-                              '-${renderList.musician}',
+                              '-${widget.musicPlayList[index].musician}',
                               style: TextStyle(
                                   fontSize: sp(14), color: Color(0xffa6a6a6)),
                             )

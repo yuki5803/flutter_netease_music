@@ -1,19 +1,26 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/config/storage_manage.dart';
 import 'package:flutter_demo/page/home/index.dart';
 import 'package:flutter_demo/page/login/login.dart';
 import 'package:flutter_demo/route/router.dart';
+import 'package:flutter_demo/view_model/audioPlayer_model.dart';
+import 'package:flutter_demo/view_model/common_model.dart';
 import 'package:flutter_demo/view_model/user_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await StorageManage.init();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider<UserModel>(
         create: (_) => UserModel(),
-      )
+      ),
+      ChangeNotifierProvider<CommonModel>(create: (_) => CommonModel()),
+      ChangeNotifierProvider<AudioPlayerModel>(
+          create: (_) => AudioPlayerModel())
     ],
     child: MyApp(),
   ));
@@ -26,11 +33,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+  bool isLogin;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
         designSize: Size(375, 734),
         builder: () => MaterialApp(
+              builder: BotToastInit(),
               title: 'Flutter Demo',
               theme: ThemeData(
                 // This is the theme of your application.

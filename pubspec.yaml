@@ -17,6 +17,12 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
 
+
+charts_flutter:
+    git:
+      url: git://github.com/google/charts.git
+      path: charts_flutter
+      
 environment:
   sdk: '>=2.7.0 <3.0.0'
 
@@ -32,6 +38,7 @@ dependencies:
   bot_toast: ^3.0.5
   flutter_svg: ^0.22.0
   flutter_screenutil: ^5.0.0
+  shared_preferences: ^2.0.7
   assets_audio_player: ^3.0.3+1
 
 dev_dependencies:

@@ -20,8 +20,15 @@ Future<BaseResponses> warpperSend(RequestType request,
     var res = await request();
     return BaseResponses.fromJson(res.data);
   } on DioError catch (e) {
+    print(e.response);
     if (e.response.statusCode == 403) {
-      BotToast.showText(text: '登录超时');
+      BotToast.showText(text: '登录超时', duration: Duration(seconds: 3));
+      return BaseResponses.fromJson(
+          {'err_code': '请求异常', 'success': false, 'data': null});
+    } else {
+      BotToast.showText(text: '请求超时', duration: Duration(seconds: 3));
+      return BaseResponses.fromJson(
+          {'err_code': '请求超时', 'success': false, 'data': null});
     }
   }
 }
@@ -30,14 +37,10 @@ class ApiBase {
   Dio requestInstance;
   ApiBaseOptions options;
 
-  ApiBase(ApiBaseOptions options) {
-    this.requestInstance = Dio();
-    this.options = options;
-  }
-
   Future<BaseResponses> post(String url, {dynamic body}) async {
-    var res =
-        await warpperSend(() => this.requestInstance.post(url, data: body));
+    var res = await warpperSend(() {
+      return this.requestInstance.post(url, data: body);
+    });
     return res;
   }
 }

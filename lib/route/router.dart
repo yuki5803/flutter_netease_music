@@ -18,13 +18,13 @@ class TestRouter {
       case RouteName.home:
         return CupertinoPageRoute(builder: (_) => HomePage());
       case RouteName.login:
-        return CupertinoPageRoute(builder: (_) => LoginPage());
+        return MaterialPageRoute(builder: (_) => LoginPage());
       case RouteName.test:
         return CupertinoPageRoute(builder: (_) => Test1());
       case RouteName.search:
         return MaterialPageRoute(builder: (_) => SearchPage());
       default:
-        return CupertinoPageRoute(builder: (_) => LoginPage());
+        return MaterialPageRoute(builder: (_) => LoginPage());
     }
   }
 }

@@ -1,8 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/model/common_model.dart';
 import 'package:flutter_demo/model/recommond.dart';
 import 'package:flutter_demo/page/recommond/commonCard/index.dart';
 import 'package:flutter_demo/utils/index.dart';
+import 'package:flutter_demo/view_model/common_model.dart';
+import 'package:provider/provider.dart';
 
 class PlayList extends StatelessWidget {
   @override
@@ -65,7 +69,8 @@ class PlayList extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: songRenderList
-              .map((renderModel) => (Container(
+              .map((renderModel) => (InkWell(
+                      child: Container(
                     margin: renderModel.padding,
                     // padding: ,
                     width: rw(109),
@@ -110,7 +115,7 @@ class PlayList extends StatelessWidget {
                             ))
                       ],
                     ),
-                  )))
+                  ))))
               .toList(),
         ),
       ),

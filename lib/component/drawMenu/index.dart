@@ -46,7 +46,11 @@ class DrawMenuItem extends StatelessWidget {
             children: [
               icon,
               Container(
-                  margin: EdgeInsets.only(left: rw(10)), child: Text(title)),
+                  margin: EdgeInsets.only(left: rw(10)),
+                  child: Text(
+                    title,
+                    style: TextStyle(fontSize: sp(14)),
+                  )),
             ],
           ),
           Icon(

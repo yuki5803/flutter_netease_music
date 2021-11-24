@@ -1,58 +1,116 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/bottomSheet/index.dart';
 import 'package:flutter_demo/component/tag/index.dart';
+import 'package:flutter_demo/config/storage_manage.dart';
 import 'package:flutter_demo/model/recommond.dart';
 import 'package:flutter_demo/page/home/homeDrawer/index.dart';
+import 'package:flutter_demo/page/me/index.dart';
 import 'package:flutter_demo/page/musician/index.dart';
 import 'package:flutter_demo/page/recommond/index.dart';
 import 'package:flutter_demo/route/router.dart';
 import 'package:flutter_demo/utils/index.dart';
+import 'package:flutter_demo/view_model/audioPlayer_model.dart';
+import 'package:flutter_demo/view_model/common_model.dart';
+import 'package:provider/provider.dart';
 
-final List<Widget> pages = <Widget>[RecommondPage(), MusicianPage()];
+final List<Widget> pages = <Widget>[RecommondPage(), MusicianPage(), MePage()];
 
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final assetsAudioPlayer = AssetsAudioPlayer();
-  var isPlay = false;
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   static PageController pageController = PageController();
   static int currentIndex = 0;
 
-  List<MusicPlayList> musicPlayList = [
-    MusicPlayList(
-        title: '反方向的钟',
-        tag: Tag(
-          content: 'SQ',
-          color: (Colors.red),
-        ),
-        musician: '周杰伦'),
-    MusicPlayList(
-        title: '青花瓷',
-        tag: Tag(
-          content: 'HQ',
-          color: (Colors.green),
-        ),
-        musician: '周杰伦'),
-    MusicPlayList(
-        title: '告白气球',
-        tag: Tag(
-          content: 'SQ',
-          color: (Colors.red),
-        ),
-        musician: '周杰伦'),
-    MusicPlayList(
-        title: '菊花台',
-        tag: Tag(
-          content: 'SQ',
-          color: (Colors.red),
-        ),
-        musician: '周杰伦'),
+  var token = StorageManage.getString(key: 'token');
+  var userId = StorageManage.getString(key: 'uid');
+  var roleId = StorageManage.getString(key: "rid");
+  Playing playing;
+
+  List<MusicPlayList> musicPlayList;
+  List<Audio> playList = [
+    Audio.network(
+      "https://www.ytmp3.cn/down/75509.mp3",
+      metas: Metas(
+        title: "反方向的钟",
+        artist: "周杰伦",
+        album: "CountryAlbum",
+      ),
+    ),
+    Audio.network(
+      "https://www.ytmp3.cn/down/35982.mp3",
+      metas: Metas(
+        title: "Uptown Funk",
+        artist: "Mark Ronson",
+        album: "CountryAlbum",
+      ),
+    )
   ];
+  // = [
+  //   MusicPlayList(
+  //       title: '反方向的钟',
+  //       tag: Tag(
+  //         content: 'SQ',
+  //         color: (Colors.red),
+  //       ),
+  //       musician: '周杰伦'),
+  //   MusicPlayList(
+  //       title: '青花瓷',
+  //       tag: Tag(
+  //         content: 'HQ',
+  //         color: (Colors.green),
+  //       ),
+  //       musician: '周杰伦'),
+  //   MusicPlayList(
+  //       title: '告白气球',
+  //       tag: Tag(
+  //         content: 'SQ',
+  //         color: (Colors.red),
+  //       ),
+  //       musician: '周杰伦'),
+  //   MusicPlayList(
+  //       title: '菊花台',
+  //       tag: Tag(
+  //         content: 'SQ',
+  //         color: (Colors.red),
+  //       ),
+  //       musician: '周杰伦'),
+  // ];
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  initState() {
+    if (token == null || userId == null || roleId == null) {
+      Future.delayed(Duration.zero, () {
+        Navigator.pushNamed(context, RouteName.login);
+      });
+    }
+    // playing = assetsAudioPlayer.current.value;
+    musicPlayList = playList
+        .map((audio) => MusicPlayList(
+            title: audio.metas.title,
+            tag: Tag(
+              content: 'SQ',
+              color: (Colors.red),
+            ),
+            musician: audio.metas.artist))
+        .toList();
+
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() async {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
 
   final List<BottomBarRender> bottomBarRender = [
     BottomBarRender(
@@ -116,6 +174,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var model = Provider.of<CommonModel>(context);
+    var audioModel = Provider.of<AudioPlayerModel>(context);
+    model.initLoginStatus();
     return Scaffold(
       drawer: Drawer(
         child: HomeDrawer(),
@@ -140,30 +201,18 @@ class _HomePageState extends State<HomePage> {
                           )),
                       Container(
                           margin: EdgeInsets.fromLTRB(rw(11), 0, 0, 0),
-                          child: Text('是你吗-巨星'))
+                          child: Text(audioModel.currentPlayingAudio))
                     ],
                   ),
                   Row(
                     children: [
                       InkWell(
-                          onTap: () {
-                            if (assetsAudioPlayer.isPlaying.value) {
-                              assetsAudioPlayer.pause();
-                              setState(() {
-                                isPlay = false;
-                              });
-                            } else {
-                              try {
-                                assetsAudioPlayer.open(
-                                    Audio.network(
-                                        "https://www.ytmp3.cn/down/75509.mp3"),
-                                    showNotification: true);
-                                setState(() {
-                                  isPlay = true;
-                                });
-                              } catch (e) {
-                                print('播放错误！' + e);
-                              }
+                          onTap: () async {
+                            try {
+                              await audioModel.audioPlayOrPause();
+                            } catch (e) {
+                              print('播放错误！' + e);
+                              BotToast.showText(text: '音乐播放失败!请检查音乐链接是否有效!');
                             }
                           },
                           child: Container(
@@ -174,7 +223,9 @@ class _HomePageState extends State<HomePage> {
                                     width: 1, color: Color(0x64a6a6a6)),
                                 borderRadius: BorderRadius.circular(50)),
                             child: Icon(
-                              isPlay ? Icons.pause : Icons.play_arrow,
+                              audioModel.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
                               size: rw(24),
                             ),
                           )),
@@ -185,8 +236,11 @@ class _HomePageState extends State<HomePage> {
                                 builder: (context) {
                                   return MyBottomSheet(
                                     musicPlayList: musicPlayList,
+                                    onClick: (item, int index) {
+                                      audioModel.audioPlayAtIndex(index);
+                                    },
+                                    activeTitle: audioModel.currentPlayingAudio,
                                   );
-                                  // return MyBottomSheet(musicPlayList: musicPlayList);
                                 });
                           },
                           child: Icon(
@@ -211,7 +265,6 @@ class _HomePageState extends State<HomePage> {
               .toList(),
         )
       ]),
-      // resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -233,7 +286,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(context, RouteName.search);
             },
             child: Offstage(
-                offstage: currentIndex == 1,
+                offstage: currentIndex != 0,
                 child: Container(
                   color: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
@@ -269,7 +322,7 @@ class _HomePageState extends State<HomePage> {
                 ))),
         actions: [
           Offstage(
-              offstage: currentIndex == 1,
+              offstage: currentIndex != 0,
               child: Container(
                 padding: EdgeInsets.only(right: rw(20)),
                 child: Icon(
@@ -281,7 +334,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: PageView.builder(
         itemBuilder: (ctx, index) => pages[index],
-        itemCount: 2,
+        itemCount: pages.length,
         controller: pageController,
         onPageChanged: (index) {
           setState(() {
